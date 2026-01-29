@@ -1,0 +1,22 @@
+name: zenquery
+description: "Wrapper around Riverpod for powerful asynchronous state management, server-state utilities and data fetching. Inspired by TanStack Query"
+version: 0.1.0
+
+homepage: https://github.com/definev/zenquery
+repository: https://github.com/definev/zenquery
+issue_tracker: https://github.com/definev/zenquery/issues
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=3.29.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  riverpod: ^3.2.0
+  flutter_riverpod: ^3.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

@@ -11,7 +11,7 @@ typedef InfinityQueryData<T, C> = ({
   ValueNotifier<List<List<T>>> pages,
   ValueNotifier<List<T>> data,
   ValueNotifier<bool> hasMore,
-  Mutation<void> stateProvider,
+  Mutation<void> loadState,
 });
 
 typedef MutationTargetFutureCallback =
@@ -26,13 +26,15 @@ Provider<InfinityQueryData<T, TCursor>> createInfinityQuery<T, TCursor>({
     getNextCursor: getNextCursor,
   );
   ref.onDispose(query.dispose);
+  Future.microtask(() => query.fetchNextPage(ref));
+
   return (
     fetchNext: query.fetchNextPage,
     refresh: query.refresh,
     pages: query.pages,
     data: query.data,
     hasMore: query.hasNext,
-    stateProvider: query.loadState,
+    loadState: query.loadState,
   );
 });
 
@@ -51,7 +53,7 @@ Provider<InfinityQueryData<T, TCursor>> createInfinityQueryPersist<T, TCursor>({
     pages: query.pages,
     data: query.data,
     hasMore: query.hasNext,
-    stateProvider: query.loadState,
+    loadState: query.loadState,
   );
 });
 
@@ -89,7 +91,7 @@ class InfinityQuery<T, TCursor> {
   }
 
   /// Fetch the first page of data.
-  Future<void> fetchFirstPage(MutationTarget target) async {
+  Future<void> _fetchFirstPage(MutationTarget target) async {
     final loadState = target.container.read(this.loadState);
     if (loadState is MutationPending) return;
 
@@ -111,7 +113,7 @@ class InfinityQuery<T, TCursor> {
 
     // If no pages yet, fetch first page instead
     if (pages.value.isEmpty) {
-      return fetchFirstPage(target);
+      return _fetchFirstPage(target);
     }
 
     final nextCursor = _getNextCursor(pages.value.last, pages.value);
@@ -131,7 +133,7 @@ class InfinityQuery<T, TCursor> {
   /// Refresh and reload from the beginning.
   Future<void> refresh(MutationTarget target) async {
     pages.value = [];
-    await fetchFirstPage(target);
+    await _fetchFirstPage(target);
   }
 
   void dispose() {

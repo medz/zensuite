@@ -27,10 +27,14 @@ Provider<MutationActionWithParam<T, TParam>> createMutationWithParam<T, TParam>(
   Future<T> Function(MutationTransaction tsx, TParam payload) action,
 ) => Provider.autoDispose<MutationActionWithParam<T, TParam>>((ref) {
   final state = Mutation<T>();
+  final mutationMap = <TParam, Mutation<T>>{};
+  ref.onDispose(() => mutationMap.clear());
   return (
-    (param) => state(param),
-    (param) => state(param).run(ref, (tsx) => action(tsx, param)),
-    (param) => state(param).reset(ref),
+    (param) => mutationMap.putIfAbsent(param, () => state(param)),
+    (param) => mutationMap
+        .putIfAbsent(param, () => state(param))
+        .run(ref, (tsx) => action(tsx, param)),
+    (param) => mutationMap.putIfAbsent(param, () => state(param)).reset(ref),
   );
 });
 
@@ -39,21 +43,25 @@ createMutationWithParamPersist<T, TParam>(
   Future<T> Function(MutationTransaction tsx, TParam payload) action,
 ) => Provider<MutationActionWithParam<T, TParam>>((ref) {
   final state = Mutation<T>();
+  final mutationMap = <TParam, Mutation<T>>{};
+  ref.onDispose(() => mutationMap.clear());
   return (
-    (param) => state(param),
-    (param) => state(param).run(ref, (tsx) => action(tsx, param)),
-    (param) => state(param).reset(ref),
+    (param) => mutationMap.putIfAbsent(param, () => state(param)),
+    (param) => mutationMap
+        .putIfAbsent(param, () => state(param))
+        .run(ref, (tsx) => action(tsx, param)),
+    (param) => mutationMap.putIfAbsent(param, () => state(param)).reset(ref),
   );
 });
 
 typedef MutationAction<T> = (
-  Mutation<T> state,
+  Mutation<T> mutation,
   Future<T> Function() run,
   void Function() reset,
 );
 
 typedef MutationActionWithParam<T, TParam> = (
-  Mutation<T> Function(TParam payload) state,
+  Mutation<T> Function(TParam payload) mutation,
   Future<T> Function(TParam payload) run,
   void Function(TParam payload) reset,
 );

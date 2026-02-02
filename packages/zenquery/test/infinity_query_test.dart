@@ -29,7 +29,7 @@ void main() {
 
       // Initial state
       expect(data.data.value, isEmpty);
-      expect(container.read(data.stateProvider), isA<MutationIdle>());
+      expect(container.read(data.loadState), isA<MutationIdle>());
 
       final target = TestMutationTarget(container);
 

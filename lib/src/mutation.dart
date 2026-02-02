@@ -30,7 +30,7 @@ Provider<MutationActionWithParam<T, TParam>> createMutationWithParam<T, TParam>(
   return (
     (param) => state(param),
     (param) => state(param).run(ref, (tsx) => action(tsx, param)),
-    () => state.reset(ref),
+    (param) => state(param).reset(ref),
   );
 });
 
@@ -42,7 +42,7 @@ createMutationWithParamPersist<T, TParam>(
   return (
     (param) => state(param),
     (param) => state(param).run(ref, (tsx) => action(tsx, param)),
-    () => state.reset(ref),
+    (param) => state(param).reset(ref),
   );
 });
 
@@ -55,5 +55,5 @@ typedef MutationAction<T> = (
 typedef MutationActionWithParam<T, TParam> = (
   Mutation<T> Function(TParam payload) state,
   Future<T> Function(TParam payload) run,
-  void Function() reset,
+  void Function(TParam payload) reset,
 );

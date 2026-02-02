@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:riverpod/experimental/mutation.dart';
 
 Provider<MutationAction<T>> createMutation<T>(
@@ -24,25 +23,25 @@ Provider<MutationAction<T>> createMutationPersist<T>(
   );
 });
 
-ProviderFamily<MutationAction<T>, TParam> createMutationFamily<T, TParam>(
+Provider<MutationActionWithParam<T, TParam>> createMutationWithParam<T, TParam>(
   Future<T> Function(MutationTransaction tsx, TParam payload) action,
-) => Provider.autoDispose.family<MutationAction<T>, TParam>((ref, param) {
+) => Provider.autoDispose<MutationActionWithParam<T, TParam>>((ref) {
   final state = Mutation<T>();
   return (
-    state,
-    () => state.run(ref, (tsx) => action(tsx, param)),
+    (param) => state(param),
+    (param) => state(param).run(ref, (tsx) => action(tsx, param)),
     () => state.reset(ref),
   );
 });
 
-ProviderFamily<MutationAction<T>, TParam>
-createMutationFamilyPersist<T, TParam>(
+Provider<MutationActionWithParam<T, TParam>>
+createMutationWithParamPersist<T, TParam>(
   Future<T> Function(MutationTransaction tsx, TParam payload) action,
-) => Provider.family<MutationAction<T>, TParam>((ref, param) {
+) => Provider<MutationActionWithParam<T, TParam>>((ref) {
   final state = Mutation<T>();
   return (
-    state,
-    () => state.run(ref, (tsx) => action(tsx, param)),
+    (param) => state(param),
+    (param) => state(param).run(ref, (tsx) => action(tsx, param)),
     () => state.reset(ref),
   );
 });
@@ -50,5 +49,11 @@ createMutationFamilyPersist<T, TParam>(
 typedef MutationAction<T> = (
   Mutation<T> state,
   Future<T> Function() run,
+  void Function() reset,
+);
+
+typedef MutationActionWithParam<T, TParam> = (
+  Mutation<T> Function(TParam payload) state,
+  Future<T> Function(TParam payload) run,
   void Function() reset,
 );

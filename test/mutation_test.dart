@@ -59,18 +59,22 @@ void main() {
       expect(container.read(state), isA<MutationIdle<String>>());
     });
 
-    test('createMutationFamily handles params', () async {
+    test('createMutationWithParam handles params', () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final mutation = createMutationFamily<String, int>((tsx, param) async {
+      final mutation = createMutationWithParam<String, int>((tsx, param) async {
         return 'success $param';
       });
 
-      final (state, run, _) = container.read(mutation(1));
-      final result = await run();
+      final (state, run, _) = container.read(mutation);
+      final result = await run(1);
+      final result2 = await run(2);
+      final result2State = container.read(state(2));
 
       expect(result, 'success 1');
+      expect(result2, 'success 2');
+      expect(result2State, isA<MutationSuccess<String>>());
     });
   });
 }

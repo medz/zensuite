@@ -2,18 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/experimental/mutation.dart';
 import 'package:zenquery/zenquery.dart';
 
-// Mock MutationTarget as we cannot instantiate the abstract class directly
-// and using Ref inside a provider to call methods caused "modifying other providers during build" error.
-class TestMutationTarget implements MutationTarget {
-  TestMutationTarget(this.container);
-
-  @override
-  final ProviderContainer container;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 void main() {
   group('InfinityQuery Tests', () {
     test('createInfinityQuery fetches first page', () async {
@@ -31,14 +19,12 @@ void main() {
       expect(data.data.value, isEmpty);
       expect(container.read(data.loadState), isA<MutationIdle>());
 
-      final target = TestMutationTarget(container);
-
       // Fetch first page
-      await data.fetchNext(target);
+      await data.fetchNext();
 
       expect(data.data.value, [1, 2, 3]);
       expect(data.pages.value.length, 1);
-      expect(data.hasMore.value, false);
+      expect(data.hasNext.value, false);
     });
 
     test('createInfinityQuery fetches next page', () async {
@@ -54,19 +40,18 @@ void main() {
       );
 
       final data = container.read(query);
-      final target = TestMutationTarget(container);
 
       // Fetch first page
-      await data.fetchNext(target);
+      await data.fetchNext();
       expect(data.data.value, [1, 2]);
-      expect(data.hasMore.value, true);
+      expect(data.hasNext.value, true);
 
       // Fetch next page
-      await data.fetchNext(target);
+      await data.fetchNext();
 
       expect(data.data.value, [1, 2, 3, 4]);
       expect(data.pages.value.length, 2);
-      expect(data.hasMore.value, false);
+      expect(data.hasNext.value, false);
     });
 
     test('createInfinityQuery refresh resets data', () async {
@@ -79,12 +64,11 @@ void main() {
       );
 
       final data = container.read(query);
-      final target = TestMutationTarget(container);
 
-      await data.fetchNext(target);
+      await data.fetchNext();
       expect(data.data.value, [1, 2, 3]);
 
-      await data.refresh(target);
+      await data.refresh();
 
       expect(data.data.value, [1, 2, 3]);
       // Verify it's a fresh load by ensuring pages count is 1 after refresh

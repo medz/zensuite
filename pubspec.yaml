@@ -5,4 +5,3 @@ environment:
 
 workspace:
   - packages/zenquery
-  - packages/zenquery_hooks

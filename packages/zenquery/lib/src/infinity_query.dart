@@ -5,17 +5,26 @@ import 'package:riverpod/riverpod.dart';
 typedef FetchFunction<T, TCursor> = Future<List<T>> Function(TCursor? cursor);
 typedef NextCursorFunction<T, TCursor> =
     TCursor? Function(List<T>? lastPage, List<List<T>> pages);
-typedef InfinityQueryData<T, C> = ({
-  MutationTargetFutureCallback fetchNext,
-  MutationTargetFutureCallback refresh,
-  ValueNotifier<List<List<T>>> pages,
-  ValueNotifier<List<T>> data,
-  ValueNotifier<bool> hasMore,
-  Mutation<void> loadState,
-});
 
-typedef MutationTargetFutureCallback =
-    Future<void> Function(MutationTarget target);
+class InfinityQueryData<T, C> {
+  const InfinityQueryData({
+    required this.fetchNext,
+    required this.refresh,
+    required this.pages,
+    required this.data,
+    required this.hasNext,
+    required this.loadState,
+  });
+
+  final FutureCallback fetchNext;
+  final FutureCallback refresh;
+  final ValueNotifier<List<List<T>>> pages;
+  final ValueNotifier<List<T>> data;
+  final ValueNotifier<bool> hasNext;
+  final Mutation<void> loadState;
+}
+
+typedef FutureCallback = Future<void> Function();
 
 Provider<InfinityQueryData<T, TCursor>> createInfinityQuery<T, TCursor>({
   required FetchFunction<T, TCursor> fetch,
@@ -28,12 +37,12 @@ Provider<InfinityQueryData<T, TCursor>> createInfinityQuery<T, TCursor>({
   ref.onDispose(query.dispose);
   Future.microtask(() => query.fetchNextPage(ref));
 
-  return (
-    fetchNext: query.fetchNextPage,
-    refresh: query.refresh,
+  return InfinityQueryData(
+    fetchNext: () => query.fetchNextPage(ref),
+    refresh: () => query.refresh(ref),
     pages: query.pages,
     data: query.data,
-    hasMore: query.hasNext,
+    hasNext: query.hasNext,
     loadState: query.loadState,
   );
 });
@@ -47,12 +56,12 @@ Provider<InfinityQueryData<T, TCursor>> createInfinityQueryPersist<T, TCursor>({
     getNextCursor: getNextCursor,
   );
   ref.onDispose(query.dispose);
-  return (
-    fetchNext: query.fetchNextPage,
-    refresh: query.refresh,
+  return InfinityQueryData(
+    fetchNext: () => query.fetchNextPage(ref),
+    refresh: () => query.refresh(ref),
     pages: query.pages,
     data: query.data,
-    hasMore: query.hasNext,
+    hasNext: query.hasNext,
     loadState: query.loadState,
   );
 });

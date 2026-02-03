@@ -5,6 +5,8 @@ repository: https://github.com/definev/zensuite
 homepage: https://github.com/definev/zensuite/tree/main/packages/zenbus
 issue_tracker: https://github.com/definev/zensuite/issues
 
+resolution: workspace
+
 environment:
   sdk: ^3.6.0
   flutter: ">=1.17.0"

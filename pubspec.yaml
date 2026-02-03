@@ -1,7 +1,8 @@
 name: _
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.7.0
 
 workspace:
   - packages/zenquery
+  - packages/zenbus

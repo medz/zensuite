@@ -2,133 +2,119 @@
 
 [![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=flat&logo=dart&logoColor=white)](https://dart.dev)
 [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat&logo=Flutter&logoColor=white)](https://flutter.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A collection of opinionated packages for handling data flow in Flutter applications. ZenSuite provides high-performance, type-safe solutions for event-driven architecture and asynchronous state management.
+**The opinionated, high-performance data flow architecture for Flutter.**
+
+ZenSuite provides a cohesive set of tools for building scalable, type-safe, and performant Flutter applications. It separates concerns into two powerful pillars: **Event-Driven Communication** and **Asynchronous State Management**.
+
+---
+
+## 🏛️ Architecture
+
+ZenSuite decouples your application logic by separating *events* (ZenBus) from *data state* (ZenQuery).
+
+```mermaid
+graph TD
+    UI[Flutter UI]
+    
+    subgraph ZenSuite
+        ZB[ZenBus]
+        ZQ[ZenQuery]
+    end
+    
+    subgraph External
+        API[Backend API]
+        DB[Local Database]
+    end
+    
+    %% Flows
+    UI -- "1. Dispatches Event" --> ZB
+    ZB -- "2. Triggers Side Effect" --> ZQ
+    ZQ -- "3. Fetches/Mutates Data" --> API
+    ZQ -- "4. Updates State" --> UI
+    
+    %% Styles
+    classDef flutter fill:#02569B,stroke:#fff,color:#fff;
+    classDef suite fill:#4B2C20,stroke:#D7B19D,color:#fff;
+    classDef ext fill:#333,stroke:#fff,color:#fff;
+    
+    class UI flutter;
+    class ZB,ZQ suite;
+    class API,DB ext;
+```
+
+---
 
 ## 📦 Packages
 
-ZenSuite is a monorepo containing the following packages:
+| Package | Version | Description |
+|---------|---------|-------------|
+| **[ZenBus](./packages/zenbus)** | [![Pub](https://img.shields.io/pub/v/zenbus.svg)](https://pub.dev/packages/zenbus) | Blazing-fast event bus with `Stream` and `AlienSignals` engines. |
+| **[ZenQuery](./packages/zenquery)** | [![Pub](https://img.shields.io/pub/v/zenquery.svg)](https://pub.dev/packages/zenquery) | Async state management wrapper around Riverpod. |
 
-### [ZenBus](./packages/zenbus) - High-Performance Event Bus
+### [ZenBus](./packages/zenbus)
+*High-performance event bus.*
+- 🚀 **Fast**: Up to 51x faster than standard Streams.
+- 🎯 **Type-Safe**: Generic event handling.
+- 🧠 **Efficient**: Zero-overhead memory usage.
 
-A blazing-fast event bus implementation with multiple strategies for optimal performance.
-
-**Key Features:**
-- 🚀 Multiple implementations (Stream, Alien Signals)
-- ⚡ Up to 51x faster than traditional Stream-based implementations
-- 🧠 Memory efficient with minimal overhead
-- 🎯 Type-safe event handling
-- 🔍 Built-in event filtering
-
-**Installation:**
-```yaml
-dependencies:
-  zenbus: ^1.0.0
-```
-
-**Quick Example:**
-```dart
-import 'package:zenbus/zenbus.dart';
-
-// Create a high-performance bus
-final bus = ZenBus<String>.alienSignals();
-
-// Listen to events
-final subscription = bus.listen((event) {
-  print('Received: $event');
-});
-
-// Fire events
-bus.fire('Hello, ZenBus!');
-
-// Clean up
-subscription.cancel();
-```
-
-**[📖 Full Documentation](./packages/zenbus/README.md)**
+### [ZenQuery](./packages/zenquery)
+*Async state management.*
+- 🔄 **Standardized**: Stores, Queries, and Mutations.
+- ∞ **Infinite Scroll**: Native support for pagination.
+- 🔮 **Optimistic Updates**: Immediate UI feedback.
 
 ---
 
-### [ZenQuery](./packages/zenquery) - Asynchronous State Management
+## � Getting Started
 
-A powerful wrapper around Riverpod for standardized data-fetching and mutation logic, inspired by TanStack Query.
+ZenSuite is a monorepo. You can use packages individually or together.
 
-**Key Features:**
-- 📊 Simplified syntax for Stores, Queries, and Mutations
-- ♻️ Automatic lifecycle management
-- ∞ Infinite scrolling support with `InfinityQuery`
-- 🔄 Structured mutations with optimistic updates
-- ✏️ Editable queries for local state management
+1. **Add dependencies**:
+   ```yaml
+   dependencies:
+     zenbus: ^1.0.0
+     zenquery: ^1.0.0
+   ```
 
-**Installation:**
-```yaml
-dependencies:
-  zenquery: ^0.1.0
-```
+2. **Setup your root provider** (if using ZenQuery):
+   ```dart
+   void main() {
+     runApp(
+       ProviderScope(
+         child: MyApp(),
+       ),
+     );
+   }
+   ```
 
-**Quick Example:**
-```dart
-import 'package:zenquery/zenquery.dart';
+3. **Explore the docs**:
+   - [ZenBus Documentation](./packages/zenbus/README.md)
+   - [ZenQuery Documentation](./packages/zenquery/README.md)
 
-// Create a query
-final userQuery = createQuery((ref) async {
-  return await api.fetchUser();
-});
-
-// Create a mutation
-final updateProfileMutation = createMutation<User>((tsx) async {
-  return await api.updateProfile(tsx);
-});
-
-// Infinite scrolling
-final postsQuery = createInfinityQuery<Post, int>(
-  fetch: (cursor) async => await api.fetchPosts(page: cursor ?? 0),
-  getNextCursor: (lastPage, allPages) => lastPage.isEmpty ? null : allPages.length,
-);
-```
-
-**[📖 Full Documentation](./packages/zenquery/README.md)**
-
-## 🎯 Why ZenSuite?
-
-ZenSuite packages are designed to work together seamlessly, providing a complete solution for data flow in Flutter applications:
-
-- **ZenBus** handles event-driven communication between components
-- **ZenQuery** manages asynchronous state and server interactions
-
-Both packages prioritize:
-- ⚡ **Performance** - Optimized for real-world Flutter applications
-- 🎨 **Developer Experience** - Clean, intuitive APIs
-- 🔒 **Type Safety** - Full Dart type safety with generics
-- 📊 **Best Practices** - Opinionated patterns that scale
-
-## 🚀 Getting Started
-
-1. Choose the package(s) you need
-2. Add them to your `pubspec.yaml`
-3. Follow the package-specific documentation linked above
-
-## 📊 Performance
-
-Both packages include comprehensive benchmarks:
-
-- **ZenBus**: [Performance Report](./packages/zenbus/benchmark/PERFORMANCE_BENCHMARK_REPORT.md) | [Memory Report](./packages/zenbus/benchmark/MEMORY_BENCHMARK_REPORT.md)
-- **ZenQuery**: Built on Riverpod's proven performance
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! This is a monorepo managed with simple workspace structure.
 
-## 📄 License
+1. **Clone the repo**:
+   ```bash
+   git clone https://github.com/definev/zensuite.git
+   ```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+2. **Install dependencies**:
+   ```bash
+   dart pub get
+   ```
 
-## 📞 Support
+3. **Run tests**:
+   ```bash
+   cd packages/zenbus && flutter test
+   cd packages/zenquery && flutter test
+   ```
 
-- 🐛 [Report a bug](https://github.com/definev/zensuite/issues)
-- 💡 [Request a feature](https://github.com/definev/zensuite/issues)
-- 📖 [View documentation](https://github.com/definev/zensuite)
+## � License
 
----
-
-Made with ❤️ by Bui Dai Duong
+MIT © [Bui Dai Duong](https://github.com/definev)

@@ -43,6 +43,8 @@ class ZenBusAlienSignals<T> implements ZenBus<T> {
     void Function(T event) listener, {
     bool Function(T event)? where,
   }) {
+    bool firstCall = true;
+
     final filter = computed<T?>((prev) {
       final value = _signal();
       if (value != null && (where?.call(value) ?? true)) {
@@ -53,7 +55,14 @@ class ZenBusAlienSignals<T> implements ZenBus<T> {
     return _ZenBusSubscriptionAlienSignals(
       effect(() {
         final value = filter();
-        if (value != null) listener(value);
+        // Skip the first call because it's the initial value
+        if (value != null) {
+          if (firstCall) {
+            firstCall = false;
+            return;
+          }
+          listener(value);
+        }
       }),
     );
   }

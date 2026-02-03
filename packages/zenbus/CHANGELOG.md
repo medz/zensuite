@@ -1,3 +1,7 @@
+## 1.0.1
+
+- Fixed `AlienSignals` implementation to skip the first call prevent recursive calls.
+
 ## 1.0.0
 
 - Initial release of ZenBus.

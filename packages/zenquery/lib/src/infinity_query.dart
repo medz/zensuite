@@ -2,10 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod/experimental/mutation.dart';
 import 'package:riverpod/riverpod.dart';
 
+/// A function that fetches a list of items based on a cursor.
 typedef FetchFunction<T, TCursor> = Future<List<T>> Function(TCursor? cursor);
+
+/// A function that determines the next cursor based on the last loaded page and all loaded pages.
+///
+/// Returns `null` if there are no more pages.
 typedef NextCursorFunction<T, TCursor> =
     TCursor? Function(List<T>? lastPage, List<List<T>> pages);
 
+/// Holds the state and actions for an infinite query.
 class InfinityQueryData<T, C> {
   const InfinityQueryData({
     required this.fetchNext,
@@ -16,16 +22,32 @@ class InfinityQueryData<T, C> {
     required this.loadState,
   });
 
+  /// Function to fetch the next page of data.
   final FutureCallback fetchNext;
+
+  /// Function to refresh the data, clearing existing pages and fetching the first page again.
   final FutureCallback refresh;
+
+  /// A notifier holding the list of pages.
   final ValueNotifier<List<List<T>>> pages;
+
+  /// A notifier holding the flattened list of all items.
   final ValueNotifier<List<T>> data;
+
+  /// A notifier indicating if there are more pages to fetch.
   final ValueNotifier<bool> hasNext;
+
+  /// The loading state of the query (e.g., pending, success, error).
   final Mutation<void> loadState;
 }
 
+/// A callback function that returns a Future.
 typedef FutureCallback = Future<void> Function();
 
+/// Creates a [Provider] for an [InfinityQueryData] that automatically disposes when unused.
+///
+/// [fetch] is the function to fetch data for a given cursor.
+/// [getNextCursor] determines the cursor for the next page.
 Provider<InfinityQueryData<T, TCursor>> createInfinityQuery<T, TCursor>({
   required FetchFunction<T, TCursor> fetch,
   required NextCursorFunction<T, TCursor> getNextCursor,
@@ -47,6 +69,10 @@ Provider<InfinityQueryData<T, TCursor>> createInfinityQuery<T, TCursor>({
   );
 });
 
+/// Creates a [Provider] for an [InfinityQueryData] that persists its state.
+///
+/// [fetch] is the function to fetch data for a given cursor.
+/// [getNextCursor] determines the cursor for the next page.
 Provider<InfinityQueryData<T, TCursor>> createInfinityQueryPersist<T, TCursor>({
   required FetchFunction<T, TCursor> fetch,
   required NextCursorFunction<T, TCursor> getNextCursor,
@@ -66,6 +92,7 @@ Provider<InfinityQueryData<T, TCursor>> createInfinityQueryPersist<T, TCursor>({
   );
 });
 
+/// Manages the state and logic for infinite pagination.
 class InfinityQuery<T, TCursor> {
   InfinityQuery({
     required Future<List<T>> Function(TCursor? param) fetch,
@@ -76,9 +103,16 @@ class InfinityQuery<T, TCursor> {
     pages.addListener(_updateData);
   }
 
+  /// The loading state of the query.
   final Mutation<void> loadState = Mutation<void>();
+  
+  /// The flattened list of all items.
   final ValueNotifier<List<T>> data = ValueNotifier([]);
+  
+  /// The list of pages, where each page is a list of items.
   final ValueNotifier<List<List<T>>> pages = ValueNotifier([]);
+  
+  /// Whether there are more pages to fetch.
   final ValueNotifier<bool> hasNext = ValueNotifier(true);
 
   final FetchFunction<T, TCursor> _fetch;
@@ -91,6 +125,7 @@ class InfinityQuery<T, TCursor> {
   bool isLoading(ProviderContainer container) =>
       container.read(loadState) is MutationPending;
 
+  /// Returns the error object if the last fetch failed.
   Object? error(MutationTarget target) {
     final loadState = target.container.read(this.loadState);
     if (loadState is MutationError) {
@@ -167,6 +202,7 @@ class InfinityQuery<T, TCursor> {
     await _fetchFirstPage(target);
   }
 
+  /// Disposes the notifiers.
   void dispose() {
     pages.removeListener(_updateData);
     pages.dispose();

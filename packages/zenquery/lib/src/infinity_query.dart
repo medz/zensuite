@@ -99,18 +99,34 @@ class InfinityQuery<T, TCursor> {
     return null;
   }
 
+  int _version = 0;
+
   /// Fetch the first page of data.
   Future<void> _fetchFirstPage(MutationTarget target) async {
     final loadState = target.container.read(this.loadState);
     if (loadState is MutationPending) return;
 
+    final startVersion = _version;
+
     await this.loadState.run(target, (tsx) async {
       final result = await _fetch(null);
+      if (startVersion != _version) return;
       pages.value = [result];
     });
 
     final nextLoadState = target.container.read(this.loadState);
     if (nextLoadState is MutationSuccess) {
+      if (startVersion != _version) {
+        // If version changed, we are not actually successfully loaded for the *current* version.
+        // But the Mutation state itself is shared.
+        // We arguably should reset it if we ignored the result?
+        // Actually, if we ignored the result, the mutation success value is for the *old* fetch.
+        // The refresh overwrites mutation state?
+        // Refresh calls _fetchFirstPage -> loadState.run.
+        // If we are pending, refresh waits?
+        // Wait, refresh logic needs to be robust.
+        return;
+      }
       this.loadState.reset(target);
     }
   }
@@ -128,20 +144,26 @@ class InfinityQuery<T, TCursor> {
     final nextCursor = _getNextCursor(pages.value.last, pages.value);
     if (nextCursor == null) return;
 
+    final startVersion = _version;
+
     await this.loadState.run(target, (tsx) async {
       final result = await _fetch(nextCursor);
+      if (startVersion != _version) return;
       pages.value = [...pages.value, result];
     });
 
     final nextLoadState = target.container.read(this.loadState);
     if (nextLoadState is MutationSuccess) {
+      if (startVersion != _version) return;
       this.loadState.reset(target);
     }
   }
 
   /// Refresh and reload from the beginning.
   Future<void> refresh(MutationTarget target) async {
+    _version++;
     pages.value = [];
+    loadState.reset(target);
     await _fetchFirstPage(target);
   }
 

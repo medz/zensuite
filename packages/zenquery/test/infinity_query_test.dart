@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:riverpod/experimental/mutation.dart';
 import 'package:zenquery/zenquery.dart';
 
 void main() {
@@ -253,6 +253,51 @@ void main() {
       await data.refresh();
       expect(data.data.value, [20]);
       expect(fetchCount, 2);
+    });
+    test('InfinityQuery refresh race condition regression', () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final completer = Completer<void>();
+
+      final query = createInfinityQuery<int, int>(
+        fetch: (cursor) async {
+          if (cursor == null) return [1];
+          // Simulate slow fetch for second page
+          await completer.future;
+          return [2];
+        },
+        getNextCursor: (lastPage, allPages) => allPages.length < 2 ? 1 : null,
+      );
+
+      final data = container.read(query);
+
+      // Initial fetch (Page 1)
+      await data.fetchNext();
+      expect(data.data.value, [1]);
+      expect(data.pages.value.length, 1);
+
+      // Start fetching Page 2
+      final fetchFuture = data.fetchNext();
+
+      // Check loading state
+      expect(container.read(data.loadState), isA<MutationPending>());
+
+      // Call refresh immediately while fetching
+      await data.refresh();
+
+      // Now let the fetch complete
+      completer.complete();
+      await fetchFuture;
+
+      // If the bug exists, we have lost page 1 and started at page 2 (which is incorrect for a fresh list)
+      // Correct behavior: refresh resets to empty and starts fetching page 1.
+      // The pending "fetch page 2" completes but is ignored due to version mismatch.
+      // Since refresh calls _fetchFirstPage, and that is async, it should eventually populate with [1].
+
+      expect(data.data.value, [
+        1,
+      ], reason: 'Should contain Page 1 after refresh');
     });
   });
 }

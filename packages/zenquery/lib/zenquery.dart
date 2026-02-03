@@ -3,6 +3,7 @@ library;
 // Enforce use packages
 export 'package:riverpod/riverpod.dart';
 export 'package:flutter_riverpod/flutter_riverpod.dart';
+export 'package:riverpod/experimental/mutation.dart';
 
 // Queries
 export 'src/infinity_query.dart';

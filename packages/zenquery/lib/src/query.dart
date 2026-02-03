@@ -66,7 +66,8 @@ class QueryEditable<NResult> extends AsyncNotifier<NResult> {
   void setError(Object error, StackTrace stackTrace) =>
       state = AsyncValue.error(error, stackTrace);
 
-  void setLoading() => state = AsyncValue.loading();
+  void setLoading([num progress = 0]) =>
+      state = AsyncValue.loading(progress: progress);
 }
 
 class QueryEditableFamily<NResult, NParam> extends AsyncNotifier<NResult> {

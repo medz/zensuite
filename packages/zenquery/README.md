@@ -313,6 +313,8 @@ if (mutation is MutationPending) {
 
 // Execute mutation
 await action.run();
+// Invalidate query
+ref.invalidate(getPostsQuery); // See #Integration with ZenBus for better approach
 
 // Reset mutation state
 action.reset();
@@ -474,6 +476,81 @@ final firebasePostsQuery = createInfinityQuery<Post, DocumentSnapshot>(
 - `query.refresh()` - Reload from beginning
 
 ---
+
+## 🤝 Integration with ZenBus
+
+You can use **ZenBus** (part of ZenSuite) to decouple your mutations from your queries. We recommend creating a **domain-specific bus** and using the `where` parameter to filter events efficiently.
+
+### 1. Define Domain Events
+
+Use a sealed class or base class for your domain events.
+
+```dart
+sealed class UserEvent {}
+
+class UserUpdatedEvent extends UserEvent {
+  final String userId;
+  final User? newUser;
+  UserUpdatedEvent(this.userId, {this.newUser});
+}
+
+class UserDeletedEvent extends UserEvent {
+  final String userId;
+  UserDeletedEvent(this.userId);
+}
+```
+
+### 2. Create the Domain Bus
+
+Create a single bus for the user domain.
+
+```dart
+final userBus = createStore((ref) => ZenBus<UserEvent>.alienSignals());
+```
+
+### 3. The Query (Filtered Subscription)
+
+The query subscribes to the domain bus but *only* receives relevant events using the `where` filter. ZenBus optimizations ensure this is extremely fast.
+
+```dart
+final userQuery = createQueryFamily<User, String>((ref, userId) async {
+  // Subscribe with filter
+  final sub = ref.read(userBus).listen(
+    (event) {
+      if (event is UserUpdatedEvent) {
+        // 🔄 Self-invalidate to trigger a refresh
+        ref.invalidateSelf();
+      }
+    },
+    // ⚡️ Performance: Only wake up listener for this user
+    where: (event) => 
+      (event is UserUpdatedEvent && event.userId == userId) ||
+      (event is UserDeletedEvent && event.userId == userId),
+  );
+  
+  ref.onDispose(sub.cancel);
+
+  return await api.fetchUser(userId);
+});
+```
+
+### 4. The Mutation (Fire Event)
+
+Mutations simply fire events on the domain bus.
+
+```dart
+final updateUserMutation = createMutation<User>((tsx) async {
+  final updatedUser = await api.updateUser(...);
+  
+  // 🔥 Fire event
+  tsx.get(userBus).fire(
+    UserUpdatedEvent(updatedUser.id, newUser: updatedUser),
+  );
+  
+  return updatedUser;
+});
+```
+
 
 ## 🎯 Real-World Examples
 

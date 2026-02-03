@@ -1,6 +1,6 @@
 # ZenQuery
 
-A streamlined, powerful wrapper around Riverpod for managing asynchronous state, mutations, and infinite lists in Flutter applications. ZenQuery simplifies the boilerplate associated with common patterns like fetching data, handling loading/error states, and managing pagination.
+Standardize your data-fetching and data-mutation logic flow. A thin wrapper around Riverpod to reduce boilerplate code.
 
 ## Features
 

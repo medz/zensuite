@@ -4,13 +4,12 @@ version: 0.1.0
 
 resolution: workspace
 
-homepage: https://github.com/definev/zenquery
-repository: https://github.com/definev/zenquery
-issue_tracker: https://github.com/definev/zenquery/issues
+homepage: https://github.com/definev/zensuite
+repository: https://github.com/definev/zensuite
+issue_tracker: https://github.com/definev/zensuite/issues
 
 environment:
-  sdk: ^3.10.0
-  flutter: ">=3.29.0"
+  sdk: ^3.7.0
 
 dependencies:
   flutter:

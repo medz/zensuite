@@ -1,9 +1,9 @@
 name: zenbus
 description: A high-performance event bus for Flutter
 version: 1.0.0
-repository: https://github.com/definev/zenquery
-homepage: https://github.com/definev/zenquery/tree/main/packages/zenbus
-issue_tracker: https://github.com/definev/zenquery/issues
+repository: https://github.com/definev/zensuite
+homepage: https://github.com/definev/zensuite/tree/main/packages/zenbus
+issue_tracker: https://github.com/definev/zensuite/issues
 
 environment:
   sdk: ^3.6.0

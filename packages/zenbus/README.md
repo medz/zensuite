@@ -526,9 +526,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Support
 
-- 🐛 [Report a bug](https://github.com/definev/zenquery/issues)
-- 💡 [Request a feature](https://github.com/definev/zenquery/issues)
-- 📖 [View documentation](https://github.com/definev/zenquery/tree/main/packages/zenbus)
+- 🐛 [Report a bug](https://github.com/definev/zensuite/issues)
+- 💡 [Request a feature](https://github.com/definev/zensuite/issues)
+- 📖 [View documentation](https://github.com/definev/zensuite/tree/main/packages/zenbus)
 
 ---
 

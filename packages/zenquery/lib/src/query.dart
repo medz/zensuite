@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod/misc.dart';
 
 FutureProvider<T> createQuery<T>(Future<T> Function(Ref ref) query) =>

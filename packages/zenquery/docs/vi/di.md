@@ -79,7 +79,7 @@ void main() async {
 
 ```dart
 // lib/di/instance.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:qmse/qmse.dart';
 
 Future<ProviderContainer> createProviderContainer() async {
@@ -139,7 +139,7 @@ Tạo một file (ví dụ: `lib/di/instance.dart`) để giữ biến container
 
 ```dart
 // lib/di/instance.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:qmse/qmse.dart';
 import 'package:zenories_app/router/coordinator.dart';
 
@@ -166,7 +166,7 @@ Khởi tạo container trước khi `runApp` và inject nó sử dụng `Uncontr
 ```dart
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:zenories_app/di/instance.dart'; // Import định nghĩa container của bạn
 
 void main() async {

@@ -1,5 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
+import 'package:riverpod/riverpod.dart';
+import 'package:riverpod/misc.dart';
 
 Provider<T> createStore<T>(T Function(Ref ref) store) =>
     Provider.autoDispose((ref) => store(ref));

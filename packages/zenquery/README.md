@@ -69,7 +69,7 @@ dependencies:
 ### 1. Wrap Your App
 
 ```dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 
 void main() {
   runApp(

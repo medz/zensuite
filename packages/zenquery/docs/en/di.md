@@ -79,7 +79,7 @@ void main() async {
 
 ```dart
 // lib/di/instance.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:qmse/qmse.dart';
 
 Future<ProviderContainer> createProviderContainer() async {
@@ -139,7 +139,7 @@ Create a file (e.g., `lib/di/instance.dart`) to hold the global container variab
 
 ```dart
 // lib/di/instance.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:qmse/qmse.dart';
 import 'package:zenories_app/router/coordinator.dart';
 
@@ -166,7 +166,7 @@ Initialize the container before `runApp` and inject it using `UncontrolledProvid
 ```dart
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:zenories_app/di/instance.dart'; // Import your container definition
 
 void main() async {
